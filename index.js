@@ -11,7 +11,7 @@ app.use(express.json());
 // * Please DO NOT INCLUDE the private app access token in your repo. Don't do this practicum in your normal account.
 const PRIVATE_APP_ACCESS = process.env.PRIVATE_APP_ACCESS_TOKEN;
 const CUSTOM_OBJECT_TYPE_ID = process.env.CUSTOM_OBJECT_TYPE_ID;
-const heders = {
+const headers = {
   Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
   "Content-Type": "application/json",
 };
@@ -20,12 +20,21 @@ const heders = {
 // * Code for Route 1 goes here
 
 app.get("/", async (req, res) => {
-  const customObjectUrl = `https://api.hubspot.com/crm/v3/objects/${CUSTOM_OBJECT_TYPE_ID}`;
+  const games = `https://api.hubapi.com/crm/v3/objects/${CUSTOM_OBJECT_TYPE_ID}?properties=name&properties=publisher&properties=price&limit=100`;
+
+  const headers = {
+    Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
+    "Content-Type": "application/json",
+  };
+
   try {
-    const resp = await axios.get(customObjectUrl, { headers: heders });
+    const resp = await axios.get(games, { headers });
     const data = resp.data.results;
+
+    console.log(data);
+
     res.render("homepage", {
-      title: "Custom Object Data | HubSpot APIs",
+      title: "Custom Object Table",
       data,
     });
   } catch (error) {
@@ -59,9 +68,10 @@ app.post("/update-cobj", async (req, res) => {
 
   try {
     await axios.post(createCustomObjectUrl, newGame, { headers });
+
     res.redirect("/");
   } catch (error) {
-    console.error("Error creating custom object record");
+    console.error("Error creating custom object record:");
 
     if (error.response) {
       console.error(error.response.status);
